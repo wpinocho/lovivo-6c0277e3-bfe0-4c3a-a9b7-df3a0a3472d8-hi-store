@@ -1,23 +1,21 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { PageTemplate } from './PageTemplate'
 import { BrandLogoLeft } from '@/components/BrandLogoLeft'
 import { SocialLinks } from '@/components/SocialLinks'
 import { FloatingCart } from '@/components/FloatingCart'
 import { ProfileMenu } from '@/components/ProfileMenu'
 import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Menu, X } from 'lucide-react'
 import { useCartUISafe } from '@/components/CartProvider'
 import { useCart } from '@/contexts/CartContext'
 import { useCollections } from '@/hooks/useCollections'
-import { Input } from '@/components/ui/input'
 import { ScrollLink } from '@/components/ScrollLink'
 
 /**
  * EDITABLE TEMPLATE - EcommerceTemplate
  * 
  * Template específico para páginas de ecommerce con header, footer y cart.
- * El agente IA puede modificar completamente el diseño, colores, layout.
+ * Atelier Roma — streetwear aesthetic inspired by Unik Clothing
  */
 
 interface EcommerceTemplateProps {
@@ -30,6 +28,25 @@ interface EcommerceTemplateProps {
   layout?: 'default' | 'full-width' | 'centered'
   hideFloatingCartOnMobile?: boolean
 }
+
+const ANNOUNCEMENT_MESSAGES = [
+  'NUEVA COLECCIÓN DISPONIBLE',
+  '·',
+  'ENVÍO GRATIS EN PEDIDOS +$999 MXN',
+  '·',
+  'ATELIER ROMA — PLAYERAS · SUDADERAS · GORRAS',
+  '·',
+  'DEVOLUCIONES GRATIS EN 30 DÍAS',
+  '·',
+  'NUEVA COLECCIÓN DISPONIBLE',
+  '·',
+  'ENVÍO GRATIS EN PEDIDOS +$999 MXN',
+  '·',
+  'ATELIER ROMA — PLAYERAS · SUDADERAS · GORRAS',
+  '·',
+  'DEVOLUCIONES GRATIS EN 30 DÍAS',
+  '·',
+]
 
 export const EcommerceTemplate = ({
   children,
@@ -45,70 +62,117 @@ export const EcommerceTemplate = ({
   const openCart = cartUI?.openCart ?? (() => {})
   const { getTotalItems } = useCart()
   const totalItems = getTotalItems()
-  const { hasCollections, loading: loadingCollections } = useCollections()
+  const { collections, loading: loadingCollections } = useCollections()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const navLinks = [
+    ...(!loadingCollections && collections.length > 0
+      ? collections.slice(0, 4).map(c => ({ label: c.name.toUpperCase(), href: `/#collections` }))
+      : [
+          { label: 'PLAYERAS', href: '/#products' },
+          { label: 'SUDADERAS', href: '/#products' },
+          { label: 'GORRAS', href: '/#products' },
+        ]),
+    { label: 'TODO', href: '/#products' },
+  ]
 
   const header = (
-    <div className={`py-2 ${headerClassName}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <BrandLogoLeft />
+    <div className={headerClassName}>
+      {/* Announcement Bar */}
+      <div className="bg-foreground text-background py-2 overflow-hidden">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {ANNOUNCEMENT_MESSAGES.map((msg, i) => (
+            <span key={i} className="mx-6 text-[11px] uppercase tracking-[0.2em] font-medium">
+              {msg}
+            </span>
+          ))}
+        </div>
+      </div>
 
-          {/* Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <nav className="flex space-x-6">
-              {!loadingCollections && hasCollections && (
-                <ScrollLink 
-                  to="/#collections" 
-                  className="text-foreground/70 hover:text-foreground transition-colors"
+      {/* Main Header */}
+      <div className="bg-background border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+
+            {/* Mobile hamburger */}
+            <button
+              className="md:hidden p-2 -ml-2"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Menú"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+
+            {/* Logo */}
+            <div className="flex-1 md:flex-none">
+              <BrandLogoLeft />
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-8">
+              {navLinks.map((link) => (
+                <ScrollLink
+                  key={link.label}
+                  to={link.href}
+                  className="text-xs font-semibold tracking-[0.15em] text-foreground/60 hover:text-foreground transition-colors uppercase"
                 >
-                  Colecciones
+                  {link.label}
                 </ScrollLink>
-              )}
-              <ScrollLink 
-                to="/#products" 
-                className="text-foreground/70 hover:text-foreground transition-colors"
-              >
-                Productos
-              </ScrollLink>
-              <Link 
-                to="/blog" 
-                className="text-foreground/70 hover:text-foreground transition-colors"
-              >
-                Blog
-              </Link>
+              ))}
             </nav>
+
+            {/* Right actions */}
+            <div className="flex items-center space-x-1">
+              <ProfileMenu />
+              {showCart && (
+                <button
+                  onClick={openCart}
+                  className="relative p-2 hover:opacity-70 transition-opacity"
+                  aria-label="Ver carrito"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-foreground text-background text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {totalItems > 99 ? '99+' : totalItems}
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Profile & Cart */}
-          <div className="flex items-center space-x-2">
-            <ProfileMenu />
-            
-            {showCart && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={openCart}
-                className="relative"
-                aria-label="Ver carrito"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {totalItems > 99 ? '99+' : totalItems}
-                  </span>
-                )}
-              </Button>
-            )}
-          </div>
+          {/* Page Title */}
+          {pageTitle && (
+            <div className="pb-4">
+              <h1 className="text-3xl font-bebas tracking-wider text-foreground">
+                {pageTitle}
+              </h1>
+            </div>
+          )}
         </div>
 
-        {/* Page Title */}
-        {pageTitle && (
-          <div className="mt-6">
-            <h1 className="text-3xl font-bold text-foreground">
-              {pageTitle}
-            </h1>
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background">
+            <nav className="py-4 px-4 space-y-1">
+              {navLinks.map((link) => (
+                <ScrollLink
+                  key={link.label}
+                  to={link.href}
+                  className="block py-3 text-sm font-semibold tracking-[0.15em] text-foreground/70 hover:text-foreground uppercase border-b border-border/50 last:border-0 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </ScrollLink>
+              ))}
+              <Link
+                to="/blog"
+                className="block py-3 text-sm font-semibold tracking-[0.15em] text-foreground/70 hover:text-foreground uppercase transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                BLOG
+              </Link>
+            </nav>
           </div>
         )}
       </div>
@@ -116,45 +180,60 @@ export const EcommerceTemplate = ({
   )
 
   const footer = (
-    <div className={`bg-black text-white py-12 ${footerClassName}`}>
+    <div className={`bg-foreground text-background py-16 ${footerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand */}
-          <div>
-            <BrandLogoLeft />
-            <p className="mt-4 text-white/70">
-              Tu tienda online de confianza
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
 
-          {/* Links */}
-          <div>
-            <h3 className="font-semibold mb-4 text-white">Enlaces</h3>
-            <div className="space-y-2">
-              <Link 
-                to="/" 
-                className="block text-white/70 hover:text-white transition-colors"
-              >
-                Inicio
-              </Link>
-              <Link 
-                to="/blog" 
-                className="block text-white/70 hover:text-white transition-colors"
-              >
-                Blog
-              </Link>
+          {/* Brand */}
+          <div className="md:col-span-2">
+            <p className="font-bebas text-4xl tracking-widest text-background mb-3">ATELIER ROMA</p>
+            <p className="text-background/50 text-sm leading-relaxed max-w-xs">
+              Ropa diseñada para destacar. Playeras, sudaderas y gorras con carácter — hechas para las calles de México.
+            </p>
+            <div className="mt-6">
+              <SocialLinks />
             </div>
           </div>
 
-          {/* Social Links */}
+          {/* Shop */}
           <div>
-            <h3 className="font-semibold mb-4 text-white">Síguenos</h3>
-            <SocialLinks />
+            <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-5 text-background/40">Tienda</h3>
+            <div className="space-y-3">
+              <ScrollLink to="/#products" className="block text-sm text-background/70 hover:text-background transition-colors">
+                Playeras
+              </ScrollLink>
+              <ScrollLink to="/#products" className="block text-sm text-background/70 hover:text-background transition-colors">
+                Sudaderas
+              </ScrollLink>
+              <ScrollLink to="/#products" className="block text-sm text-background/70 hover:text-background transition-colors">
+                Gorras
+              </ScrollLink>
+              <ScrollLink to="/#products" className="block text-sm text-background/70 hover:text-background transition-colors">
+                Novedades
+              </ScrollLink>
+            </div>
+          </div>
+
+          {/* Info */}
+          <div>
+            <h3 className="text-xs font-bold tracking-[0.2em] uppercase mb-5 text-background/40">Info</h3>
+            <div className="space-y-3">
+              <Link to="/blog" className="block text-sm text-background/70 hover:text-background transition-colors">
+                Blog
+              </Link>
+              <a href="mailto:hola@atelierroma.mx" className="block text-sm text-background/70 hover:text-background transition-colors">
+                Contacto
+              </a>
+              <Link to="/my-orders" className="block text-sm text-background/70 hover:text-background transition-colors">
+                Mis Pedidos
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-white/20 text-center text-white/70">
-          <p>&copy; 2025 Tu Tienda. Todos los derechos reservados.</p>
+        <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4 text-background/40 text-xs">
+          <p>&copy; {new Date().getFullYear()} Atelier Roma. Todos los derechos reservados.</p>
+          <p className="tracking-widest uppercase text-[10px]">atelierroma.mx</p>
         </div>
       </div>
     </div>
@@ -162,7 +241,7 @@ export const EcommerceTemplate = ({
 
   return (
     <>
-      <PageTemplate 
+      <PageTemplate
         header={header}
         footer={footer}
         className={className}
@@ -170,7 +249,7 @@ export const EcommerceTemplate = ({
       >
         {children}
       </PageTemplate>
-      
+
       {showCart && <FloatingCart hideOnMobile={hideFloatingCartOnMobile} />}
     </>
   )
