@@ -18,10 +18,11 @@
 - **Announcement bar:** bg-foreground (negro), texto blanco, marquee infinito
 
 ## 3. Active Plan
-- **Estado:** ✅ Homepage completa inspirada en Unik
+- **Estado:** ✅ Homepage completa y funcionando
 - **Siguiente paso:** Crear productos reales desde el Dashboard, agregar colecciones (Playeras/Sudaderas/Gorras)
 
 ## 4. Recent Changes (newest first)
+- 2026-07-31: IndexUI.tsx — Fix crash: removido import/uso de BundleCard inexistente
 - 2026-07-31: IndexUI.tsx — Homepage Unik-style: hero fullbleed, horizontal product carousel, category grid, bestsellers, brand editorial band, trust badges
 - 2026-07-31: EcommerceTemplate.tsx — Announcement bar marquee + mobile hamburger menu + footer Atelier Roma
 - 2026-07-31: index.css — Import Bebas Neue + Space Grotesk, black/white design tokens, radius=0, scrollbar-hide, marquee animation
@@ -38,7 +39,6 @@
 
 ## 6. Known Issues
 - Sin productos en DB — el homepage muestra "Próximamente" en bestsellers hasta que se creen productos
-- Supabase no conectado (plataforma Lovivo DB sí funciona)
 
 ## 7. Pending / Future Sessions
 - **Alta prioridad:** Crear productos y colecciones (Playeras, Sudaderas, Gorras) desde el Dashboard

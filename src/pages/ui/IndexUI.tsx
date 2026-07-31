@@ -5,7 +5,6 @@ import { CollectionCard } from '@/components/CollectionCard';
 import { FloatingCart } from '@/components/FloatingCart';
 import { NewsletterSection } from '@/components/NewsletterSection';
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate';
-import { BundleCard } from '@/components/ui/BundleCard';
 import { useBundles } from '@/hooks/useBundles';
 import type { UseIndexLogicReturn } from '@/components/headless/HeadlessIndex';
 
@@ -265,24 +264,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
         </section>
       )}
 
-      {/* ─── BUNDLES ─────────────────────────────────────────────── */}
-      {!loadingBundles && bundles.length > 0 && (
-        <section id="bundles" className="py-10 md:py-14">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-7">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-1">Ahorra más</p>
-              <h2 className="font-bebas text-4xl md:text-5xl tracking-wide text-foreground">
-                Paquetes Especiales
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {bundles.map((bundle) => (
-                <BundleCard key={bundle.id} bundle={bundle} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+
 
       {/* ─── BRAND EDITORIAL BAND ─────────────────────────────────── */}
       <section className="relative overflow-hidden h-64 md:h-80">
